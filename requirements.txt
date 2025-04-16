@@ -1,0 +1,22 @@
+# Core API dependencies
+fastapi
+uvicorn
+pydantic
+pyjwt
+requests
+sqlalchemy[asyncio]
+asyncpg
+python-dotenv
+PyPDF2
+python-docx
+
+# AI Providers
+openai
+cohere
+anthropic
+
+# Vector search
+faiss-cpu
+
+# Optional: Azure SDK if needed for Azure OpenAI
+azure-ai-ml ; extra == "azure"
