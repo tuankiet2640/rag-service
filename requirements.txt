@@ -6,6 +6,7 @@ pyjwt
 requests
 sqlalchemy[asyncio]
 asyncpg
+psycopg2-binary
 python-dotenv
 PyPDF2
 python-docx
