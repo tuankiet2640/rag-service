@@ -67,7 +67,7 @@ This document provides comprehensive documentation for the RAG Service API, incl
 ---
 
 ## Security Notes
-- API keys and sensitive config must be stored in `.env` files, not in the database.
+- API keys and sensitive config  stored in `.env` file.
 - Use HTTPS and secure token storage in production.
 
 ---
