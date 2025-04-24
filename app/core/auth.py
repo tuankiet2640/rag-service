@@ -19,8 +19,18 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
     except Exception:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials with mai-services")
 
-def get_current_admin(user=Depends(get_current_user)):
-    # Adjust role check to match your mai-services claims structure
-    if "roles" in user and ("admin" in user["roles"] or "ADMIN" in user["roles"]):
-        return user
-    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin privileges required")
+def get_current_user_with_role(required_role: str):
+    def dependency(user=Depends(get_current_user)):
+        roles = user.get("roles", [])
+        if required_role in roles:
+            return user
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"{required_role} role required")
+    return dependency
+
+def get_current_user_with_permission(required_permission: str):
+    def dependency(user=Depends(get_current_user)):
+        permissions = user.get("permissions", [])
+        if required_permission in permissions:
+            return user
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"{required_permission} permission required")
+    return dependency
