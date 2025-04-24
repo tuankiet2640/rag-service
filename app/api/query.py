@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas import QueryResponse
 from app.models import KnowledgeBase as KBModel
-from app.core.auth import get_current_user
+from app.core.auth import get_current_user_with_role, get_current_user_with_permission
 from app.db.database import get_db
 from app.services.rag import get_rag_service
 import uuid

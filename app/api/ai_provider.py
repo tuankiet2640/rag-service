@@ -5,7 +5,7 @@ from sqlalchemy.future import select
 from sqlalchemy.exc import IntegrityError
 from app.schemas import AIProviderCreate, AIProviderOut
 from app.models import AIProvider as AIProviderModel
-from app.core.auth import get_current_admin, get_current_user
+from app.core.auth import get_current_user_with_role, get_current_user_with_permission
 from app.db.database import get_db
 
 router = APIRouter()
@@ -24,7 +24,7 @@ async def list_ai_providers(current_user=Depends(get_current_user), db: AsyncSes
     ) for p in providers]
 
 @router.post("/ai_providers", response_model=AIProviderOut)
-async def create_ai_provider(provider: AIProviderCreate, current_admin=Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
+async def create_ai_provider(provider: AIProviderCreate, current_admin=Depends(get_current_user_with_role("admin")), db: AsyncSession = Depends(get_db)):
     new_provider = AIProviderModel(
         id=provider.id,
         name=provider.name,
@@ -51,7 +51,7 @@ async def create_ai_provider(provider: AIProviderCreate, current_admin=Depends(g
     )
 
 @router.delete("/ai_providers/{provider_id}")
-async def delete_ai_provider(provider_id: str, current_admin=Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
+async def delete_ai_provider(provider_id: str, current_admin=Depends(get_current_user_with_role("admin")), db: AsyncSession = Depends(get_db)):
     provider = await db.get(AIProviderModel, provider_id)
     if not provider:
         raise HTTPException(status_code=404, detail="AI provider not found")
@@ -60,7 +60,7 @@ async def delete_ai_provider(provider_id: str, current_admin=Depends(get_current
     return {"detail": "Deleted"}
 
 @router.put("/ai_providers/{provider_id}", response_model=AIProviderOut)
-async def update_ai_provider(provider_id: str, provider: AIProviderCreate, current_admin=Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
+async def update_ai_provider(provider_id: str, provider: AIProviderCreate, current_admin=Depends(get_current_user_with_role("admin")), db: AsyncSession = Depends(get_db)):
     db_provider = await db.get(AIProviderModel, provider_id)
     if not db_provider:
         raise HTTPException(status_code=404, detail="AI provider not found")

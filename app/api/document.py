@@ -5,7 +5,7 @@ from sqlalchemy.future import select
 from sqlalchemy.exc import IntegrityError
 from app.schemas import DocumentCreate, DocumentOut
 from app.models import Document as DocModel, KnowledgeBase as KBModel
-from app.core.auth import get_current_admin, get_current_user
+from app.core.auth import get_current_user_with_role, get_current_user_with_permission
 from app.db.database import get_db
 import uuid
 
@@ -31,7 +31,7 @@ from app.services.rag import get_rag_service
 import json
 
 @router.post("knowledge_bases/{kb_id}/documents", response_model=DocumentOut, summary="Add document", response_description="Document metadata")
-async def add_document(kb_id: str, doc: DocumentCreate, current_admin=Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
+async def add_document(kb_id: str, doc: DocumentCreate, current_admin=Depends(get_current_user_with_role("admin")), db: AsyncSession = Depends(get_db)):
     """
     Add a document to a knowledge base (admin only). Accepts raw text in 'source'.
     Chunks, embeds, and stores using the new RAGService abstraction (FAISS+provider_manager).
@@ -59,7 +59,7 @@ async def add_document(kb_id: str, doc: DocumentCreate, current_admin=Depends(ge
         raise HTTPException(status_code=500, detail=f"Document ingestion failed: {str(e)}")
 
 @router.delete("{doc_id}")
-async def delete_document(doc_id: str, current_admin=Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
+async def delete_document(doc_id: str, current_admin=Depends(get_current_user_with_role("admin")), db: AsyncSession = Depends(get_db)):
     doc = await db.get(DocModel, uuid.UUID(doc_id))
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")

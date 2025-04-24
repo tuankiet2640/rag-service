@@ -5,7 +5,7 @@ from sqlalchemy.future import select
 from sqlalchemy.exc import IntegrityError
 from app.schemas import KnowledgeBaseCreate, KnowledgeBaseOut
 from app.models import KnowledgeBase as KBModel
-from app.core.auth import get_current_admin, get_current_user
+from app.core.auth import get_current_user_with_role, get_current_user_with_permission
 from app.db.database import get_db
 import uuid
 from app.services.rag import get_rag_service
@@ -27,7 +27,7 @@ async def list_knowledge_bases(current_user=Depends(get_current_user), db: Async
 async def ingest_documents(
     kb_id: str,
     files: List[UploadFile] = File(..., description="Files to ingest"),
-    current_admin=Depends(get_current_admin),
+    current_admin=Depends(get_current_user_with_role("admin")),
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -88,7 +88,7 @@ async def get_knowledge_base(kb_id: str, current_user=Depends(get_current_user),
     )
 
 @router.post("", response_model=KnowledgeBaseOut)
-async def create_knowledge_base(kb: KnowledgeBaseCreate, current_admin=Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
+async def create_knowledge_base(kb: KnowledgeBaseCreate, current_admin=Depends(get_current_user_with_role("admin")), db: AsyncSession = Depends(get_db)):
     new_kb = KBModel(
         name=kb.name,
         description=kb.description,
@@ -109,7 +109,7 @@ async def create_knowledge_base(kb: KnowledgeBaseCreate, current_admin=Depends(g
     )
 
 @router.delete("/{kb_id}")
-async def delete_knowledge_base(kb_id: str, current_admin=Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
+async def delete_knowledge_base(kb_id: str, current_admin=Depends(get_current_user_with_role("admin")), db: AsyncSession = Depends(get_db)):
     kb = await db.get(KBModel, uuid.UUID(kb_id))
     if not kb:
         raise HTTPException(status_code=404, detail="Knowledge base not found")
