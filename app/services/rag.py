@@ -1,6 +1,6 @@
 import uuid
 from typing import Any, List
-from app.models.db_models import KnowledgeBase as KBModel, Document as DocModel, DocumentChunk, Embedding
+from app.models import KnowledgeBase as KBModel, Document as DocModel, DocumentChunk, Embedding
 from app.services.provider_manager import ProviderManager
 from app.services.faiss_manager import FAISSManager, get_index_path
 import numpy as np
@@ -139,7 +139,7 @@ class RAGService:
         # Retrieve chunk texts from DB
         chunk_ids = [r[0] for r in results]
         from sqlalchemy.future import select
-        from app.models.db_models import DocumentChunk
+        from app.models import DocumentChunk
         db_chunks = (await self.db.execute(select(DocumentChunk).where(DocumentChunk.id.in_(chunk_ids)))).scalars().all()
         context = "\n".join(chunk.text for chunk in db_chunks)
         prompt = (

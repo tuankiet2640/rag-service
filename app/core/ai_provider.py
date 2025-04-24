@@ -1,5 +1,5 @@
 # Abstraction for dispatching queries to different AI providers
-from app.models.schemas import QueryRequest, QueryResponse
+from app.schemas import QueryRequest, QueryResponse
 
 from app.core.providers.openai_provider import OpenAIProviderClient
 

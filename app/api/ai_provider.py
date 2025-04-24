@@ -3,8 +3,8 @@ from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.exc import IntegrityError
-from app.models.schemas import AIProviderCreate, AIProviderOut
-from app.models.db_models import AIProvider as AIProviderModel
+from app.schemas import AIProviderCreate, AIProviderOut
+from app.models import AIProvider as AIProviderModel
 from app.core.auth import get_current_admin, get_current_user
 from app.db.database import get_db
 
