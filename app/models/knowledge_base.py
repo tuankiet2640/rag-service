@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Text
+from sqlalchemy import Column, String, Text, Integer
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
 from .base import Base
@@ -11,3 +11,9 @@ class KnowledgeBase(Base):
     description = Column(Text)
     ai_provider = Column(String(64), nullable=True)
     documents = relationship("Document", back_populates="knowledge_base", cascade="all, delete-orphan")
+
+    # New configuration fields
+    chunking_strategy = Column(String(64), nullable=True, default="recursive")
+    chunk_size = Column(Integer, nullable=True, default=1000)
+    chunk_overlap = Column(Integer, nullable=True, default=200)
+    embedding_model = Column(String(128), nullable=True, default="text-embedding-ada-002")

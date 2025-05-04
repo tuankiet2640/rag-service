@@ -1,5 +1,5 @@
 import openai
-from typing import List
+from typing import List, Dict, Any
 import os
 
 class OpenAIProviderClient:
@@ -26,15 +26,35 @@ class OpenAIProviderClient:
         # Fix: openai>=1.0 returns an object, not a dict
         return [item.embedding for item in response.data]
 
-    async def complete(self, prompt: str, **kwargs) -> str:
+    async def complete(self, prompt: str, **kwargs) -> Dict[str, Any]:
+        """
+        Calls the OpenAI completion API and returns the content and usage info.
+        Returns:
+            Dict containing 'content' (str) and 'usage' (Dict)
+        """
         import asyncio
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, self._complete_sync, prompt, kwargs)
+        # _complete_sync now returns the full response object
+        response = await loop.run_in_executor(None, self._complete_sync, prompt, kwargs)
+        content = response.choices[0].message.content.strip()
+        usage = response.usage
+        # Convert usage Pydantic model to dict for easier handling/serialization
+        usage_dict = {
+            "prompt_tokens": usage.prompt_tokens,
+            "completion_tokens": usage.completion_tokens,
+            "total_tokens": usage.total_tokens
+        }
+        return {"content": content, "usage": usage_dict, "model": response.model} # Also return model used
 
-    def _complete_sync(self, prompt: str, kwargs) -> str:
+    def _complete_sync(self, prompt: str, kwargs) -> Any:
+        """
+        Synchronous call to OpenAI completion API. Returns the full response object.
+        """
+        # Use the completion_model specified during init unless overridden in kwargs
+        model_to_use = kwargs.pop('model', self.completion_model)
         response = openai.chat.completions.create(
-            model=self.completion_model,
+            model=model_to_use,
             messages=[{"role": "user", "content": prompt}],
             **kwargs
         )
-        return response.choices[0].message.content.strip()
+        return response # Return the whole response object
