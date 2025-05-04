@@ -14,16 +14,21 @@ This document provides comprehensive documentation for the RAG Service API, incl
 ---
 
 ## Knowledge Base Endpoints
-- **GET** `/api/v1/knowledge_bases/`
-  - List all knowledge bases.
-- **POST** `/api/v1/knowledge_bases/`
-  - Create a new knowledge base.
-- **GET** `/api/v1/knowledge_bases/{kb_id}`
+- **GET** `/api/v1/knowledge-bases/`
+  - List all available knowledge bases.
+  - **Response:** `List[{ id: string, name: string, description: string, ai_provider: string, chunking_strategy: string, chunk_size: int, chunk_overlap: int, embedding_model: string }]`
+- **POST** `/api/v1/knowledge-bases/`
+  - **Body:** `{ name: string, description?: string, ai_provider?: string, chunking_strategy?: string, chunk_size?: int, chunk_overlap?: int, embedding_model?: string }`
+  - **Response:** `{ id: string, name: string, description: string, ai_provider: string, chunking_strategy: string, chunk_size: int, chunk_overlap: int, embedding_model: string }`
+  - Create a new knowledge base (admin only). Allows specifying chunking and embedding settings. Defaults are used if not provided.
+- **GET** `/api/v1/knowledge-bases/{kb_id}`
   - Get details of a specific knowledge base.
-- **POST** `/api/v1/knowledge_bases/{kb_id}/ingest`
-  - Ingest one or more documents (multipart upload).
-- **POST** `/api/v1/knowledge_bases/{kb_id}/documents`
-  - Add a document with raw text (admin only).
+  - **Response:** `{ id: string, name: string, description: string, ai_provider: string, chunking_strategy: string, chunk_size: int, chunk_overlap: int, embedding_model: string }`
+- **DELETE** `/api/v1/knowledge-bases/{kb_id}`
+  - Delete a knowledge base (admin only).
+- **POST** `/api/v1/knowledge-bases/{kb_id}/ingest`
+  - **File Upload:** `file: UploadFile`
+  - Ingest a document (PDF, DOCX, TXT) into the specified knowledge base (admin only). Uses the KB's configured chunking strategy.
 
 ---
 
@@ -38,8 +43,13 @@ This document provides comprehensive documentation for the RAG Service API, incl
 ## Query Endpoints
 - **POST** `/api/v1/query/`
   - **Body:** `{ knowledge_base_id: string, query: string, top_k?: int }`
-  - **Response:** `{ answer: string, context: [string] }`
-  - Query a knowledge base using the selected provider and FAISS vector search. Returns an LLM-generated answer and supporting context.
+  - **Response:** `{ answer: string, context: string }`
+  - Query a knowledge base using its configured provider and vector search. Returns an LLM-generated answer and supporting context.
+  - **Note:** Each query, its context, response, token usage, and latency are automatically logged for analysis and feedback.
+- **POST** `/api/v1/query/feedback`
+  - **Body:** `{ log_id: string (UUID), rating: int (-1, 0, or 1), comment?: string }`
+  - **Response:** `{ log_id: string, rating: int, comment: string, message: string }`
+  - Submit feedback for a previously executed query identified by its log ID.
 
 ---
 

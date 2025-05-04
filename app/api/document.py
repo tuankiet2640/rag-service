@@ -5,7 +5,7 @@ from sqlalchemy.future import select
 from sqlalchemy.exc import IntegrityError
 from app.schemas import DocumentCreate, DocumentOut
 from app.models import Document as DocModel, KnowledgeBase as KBModel
-from app.core.auth import get_current_user_with_role, get_current_user_with_permission
+from app.core.auth import get_current_user, get_current_user_with_role, get_current_user_with_permission
 from app.db.database import get_db
 import uuid
 
