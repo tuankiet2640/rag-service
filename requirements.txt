@@ -19,6 +19,3 @@ anthropic
 
 # Vector search
 faiss-cpu
-
-# Optional: Azure SDK if needed for Azure OpenAI
-azure-ai-ml ; extra == "azure"
